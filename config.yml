@@ -1,0 +1,4 @@
+cosmos:
+  rpc: "https://api-cosmoshub-ia.cosmosia.notional.ventures"
+  chain_id: "cosmoshub-4"
+  cosmos_address: "cosmosvaloper1ddle9tczl87gsvmeva3c48nenyng4n56nghmjk"
