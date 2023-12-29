@@ -47,7 +47,6 @@ var existing = make(map[string]string)
 // var existing string
 
 func run() {
-	fmt.Printf("\"running\": %v\n", "running")
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	viper.AutomaticEnv()
