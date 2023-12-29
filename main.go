@@ -46,7 +46,6 @@ var existing = make(map[string]string)
 // var existing string
 
 func run() {
-	fmt.Printf("\"running\": %v\n", "running")
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	viper.AutomaticEnv()
@@ -137,8 +136,8 @@ func check(db *sql.DB, entity string, config Configuration) {
 			fmt.Println("Error converting string to *big.Int")
 			return
 		}
-		a := fmt.Sprintf("The value of the validator token from the %s endpoint is %d", entity, v.Validators.Tokens)
-		fmt.Println(a)
+		//a := fmt.Sprintf("The value of the validator token from the %s endpoint is %d", entity, v.Validators.Tokens)
+		//fmt.Println(a)
 		// fmt.Sprintf("The value of the validator token from the %s  endpoint is", entity)
 		var temptoken string
 		query := fmt.Sprintf("SELECT token FROM validator.%s ORDER BY id DESC LIMIT 1", entity)
