@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"math/big"
 	"net/http"
+	"strings"
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -137,8 +138,8 @@ func check(db *sql.DB, entity string, config Configuration) {
 			fmt.Println("Error converting string to *big.Int")
 			return
 		}
-		a := fmt.Sprintf("The value of the validator token from the %s endpoint is %d", entity, v.Validators.Tokens)
-		fmt.Println(a)
+		// a := fmt.Sprintf("The value of the validator token from the %s endpoint is %d", entity, v.Validators.Tokens)
+		// fmt.Println(a)
 		// fmt.Sprintf("The value of the validator token from the %s  endpoint is", entity)
 		var temptoken string
 		query := fmt.Sprintf("SELECT token FROM validator.%s ORDER BY id DESC LIMIT 1", entity)
@@ -166,7 +167,17 @@ func check(db *sql.DB, entity string, config Configuration) {
 				fmt.Println("Error inserting new value into the database:", err.Error())
 				return
 			}
-			send("The voting power for " + entity + " has changed to " + v.Validators.Tokens)
+			number := v.Validators.Tokens
+			number = strings.TrimSpace(number)
+			float, success := new(big.Float).SetString(number)
+			if !success {
+				fmt.Println("Error converting string to big.Float")
+				return
+			}
+			divisor := new(big.Float).SetInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(6), nil))
+			result := new(big.Float).Quo(float, divisor)
+			fmt.Printf("Result: %.6f\n", result)
+			send("The voting power for " + entity + " has changed to " + result.String())
 
 		}
 
