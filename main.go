@@ -175,7 +175,10 @@ func check(db *sql.DB, entity string, config Configuration) {
 			}
 			divisor := new(big.Float).SetInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(6), nil))
 			result := new(big.Float).Quo(float, divisor)
-			fmt.Printf("Result: %.6f\n", result)
+			// fmt.Printf("Result: %.6f\n", result)
+			// fmt.Println(result.String())
+			formattedResult := result.Text('f', 6)
+			fmt.Printf("Result: %s\n", formattedResult)
 			send("The voting power for " + entity + " has changed to " + result.String())
 
 		}
