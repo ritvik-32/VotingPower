@@ -2,3 +2,112 @@ cosmos:
   rpc: "https://api-cosmoshub-ia.cosmosia.notional.ventures"
   chain_id: "cosmoshub-4"
   cosmos_address: "cosmosvaloper1ddle9tczl87gsvmeva3c48nenyng4n56nghmjk"
+
+akash:
+  rpc: "https://api-akash-ia.cosmosia.notional.ventures"
+  chain_id: "akashnet-2"
+  cosmos_address: "akashvaloper1qwlcuf2c2dhtgy8z5y7xxqev96km0n5mw30ls2"
+
+osmosis:
+  rpc: "https://api-osmosis-ia.cosmosia.notional.ventures"
+  chain_id: "osmosis-1"
+  cosmos_address: "osmovaloper1ddle9tczl87gsvmeva3c48nenyng4n56yscals"
+
+# stride:(NOT WORKING)
+#   rpc: "https://api-cosmoshub-ia.cosmosia.notional.ventures"
+#   chain_id: "cosmoshub-4"
+#   cosmos_address: "cosmosvaloper1ddle9tczl87gsvmeva3c48nenyng4n56nghmjk"
+
+
+passage:
+  rpc: "https://api.passage.vitwit.com"
+  chain_id: "passage-2"
+  cosmos_address: "pasgvaloper19y9c9smwvd77kzrs9724d8wjdvpul9rq4xecfd"
+
+
+# neutron:(NOT WORKING)
+#   rpc: "https://api-cosmoshub-ia.cosmosia.notional.ventures"
+#   chain_id: "neutron-1"
+#   cosmos_address: "neutronvaloper1ddle9tczl87gsvmeva3c48nenyng4n56g7n4zx"
+
+umee:
+  rpc: "https://umee-api.polkachu.com"
+  chain_id: "umee-1"
+  cosmos_address: "umeevaloper15jl3zsed69ucvcmtfjzgw88qj5xsjf8j6sj5nu"
+
+regen:
+  rpc: "https://api-regen-ia.cosmosia.notional.ventures/"
+  chain_id: "regen-1"
+  cosmos_address: "regenvaloper1h5z08rzvrwt3pzdjc03upvuh2x0j3yskldyqvj"
+
+dydx:
+  rpc: "https://dydx-dao-api.polkachu.com"
+  chain_id: "dydx-mainnet-1"
+  cosmos_address: "dydxvaloper1ddle9tczl87gsvmeva3c48nenyng4n566mmu4r"
+
+stargaze:
+  rpc: "https://stargaze-api.polkachu.com"
+  chain_id: "stargaze-1"
+  cosmos_address: "starsvaloper12rfj3mvdfeh38p3ztmuhamgm4yxwq8a5pz8vvn"
+# //////////////////////////////////////////////////////////////////////////////////////////////////////////
+juno:
+  rpc: "https://juno-api.polkachu.com"
+  chain_id: "juno-1"
+  cosmos_address: "junovaloper16msryt3fqlxtvsy8u5ay7wv2p8mglfg9g70e3q"
+
+
+evmos:
+  rpc: "https://evmos-api.polkachu.com"
+  chain_id: "evmos_9001-2"
+  cosmos_address: "evmosvaloper10pcga9su5me3dp5g4jln49uxjq7c9s2u9qy9zu"
+
+quasar:
+  rpc: "https://quasar-api.polkachu.com"
+  chain_id: "quasar-1"
+  cosmos_address: "quasarvaloper1md3aplaqyl0frzkv9hpvcmfxtavc027lff4ezr"
+
+gravity:
+  rpc: "https://gravity-api.polkachu.com"
+  chain_id: "gravity-bridge-3"
+  cosmos_address: "gravityvaloper1v55ah3flqgwhkss38asgw3ye8naevzwt8fly7a"
+
+comdex:
+  rpc: "https://comdex-api.polkachu.com"
+  chain_id: "comdex-1"
+  cosmos_address: "comdexvaloper10j3t6jxqjjnz4lkh3m2af7yxcf9773r4a8z8z3"
+
+desmos:
+  rpc: "https://api.mainnet.desmos.network"
+  chain_id: "desmos-mainnet"
+  cosmos_address: "desmosvaloper1c4gwu6vv0xasf2dysgag90wymw6s327lxz5wqe"
+
+quicksilver:
+  rpc: "https://api-quicksilver-ia.cosmosia.notional.ventures:443"
+  chain_id: "quicksilver-2"
+  cosmos_address: "quickvaloper1kq6whnqfg0uvdfudeghtar6574auv00ds8jhwv"
+
+omniflix:
+  rpc: "https://api-omniflixhub-ia.cosmosia.notional.ventures/"
+  chain_id: "omniflixhub-1"
+  cosmos_address: "omniflixvaloper1ckfuavp9hj8g4rkuxkexnc0q6cufqrjw622n79"
+
+mars:
+  rpc: "https://mars-api.polkachu.com"
+  chain_id: "mars-1"
+  cosmos_address: "marsvaloper1y4s29z2d845c660dxqvac09hrn6wszsy4hweue"
+
+celestia:
+  rpc: "https://api-celestia-01.stakeflow.io"
+  chain_id: "celestia"
+  cosmos_address: "celestiavaloper189ecvq5avj0wehrcfnagpd5sd8pup9aqmdglmr"
+
+archway:
+  rpc: "https://api-archway.cosmos-spaces.cloud"
+  chain_id: "archway-1"
+  cosmos_address: "archwayvaloper1dc7xue4y86ehhjtyf7hpfna73pn0p52lhp2hcm"  
+
+crescent:
+  rpc: "https://crescent-api.polkachu.com"
+  chain_id: "crescent-1"
+  cosmos_address: "crevaloper1ddle9tczl87gsvmeva3c48nenyng4n56sqsyxz"    
+        

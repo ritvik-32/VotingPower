@@ -29,7 +29,7 @@ type VResponse struct {
 }
 
 func main() {
-	cronJob := time.NewTicker(time.Minute)
+	cronJob := time.NewTicker(time.Hour)
 
 	run()
 
@@ -41,9 +41,12 @@ func main() {
 	}
 }
 
-var existing string
+var existing = make(map[string]string)
+
+// var existing string
 
 func run() {
+	fmt.Printf("\"running\": %v\n", "running")
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	viper.AutomaticEnv()
@@ -65,66 +68,109 @@ func run() {
 	}
 	defer db.Close()
 
+	fmt.Printf("\"db started\": %v\n", "db started")
+
 	err = db.Ping()
 	if err != nil {
 		fmt.Println("Error pinging the database")
 		panic(err.Error())
 	}
-	// fmt.Println("RPC:", configuration["cosmos"].Rpc)
-	// fmt.Println("Cosmos Address:", configuration["cosmos"].Cosmos_address)
-	// Fetch token value from the endpoint
-	// url := "https://api-cosmoshub-ia.cosmosia.notional.ventures/cosmos/staking/v1beta1/validators/cosmosvaloper1ddle9tczl87gsvmeva3c48nenyng4n56nghmjk"
-	url := fmt.Sprintf("%s/cosmos/staking/v1beta1/validators/%s", configuration["cosmos"].Rpc, configuration["cosmos"].Cosmos_address)
-	// fmt.Println("UUUUUUUUUUUUUUUUUUUUUUUUUUU", url)
-	resp, err := http.Get(url)
-	if err != nil {
-		fmt.Println("Error fetching the URL:", err.Error())
-		return
-	}
-	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println("Error reading the unbounded body", err.Error())
-		return
-	}
+	check(db, "cosmos", configuration["cosmos"])
+	check(db, "akash", configuration["akash"])
+	check(db, "osmosis", configuration["osmosis"])
+	check(db, "passage", configuration["passage"])
+	check(db, "umee", configuration["umee"])
+	check(db, "regen", configuration["regen"])
+	check(db, "dydx", configuration["dydx"])
+	check(db, "stargaze", configuration["stargaze"])
+	check(db, "juno", configuration["juno"])
+	check(db, "evmos", configuration["evmos"])
+	check(db, "quasar", configuration["quasar"])
+	check(db, "gravity", configuration["gravity"])
+	check(db, "comdex", configuration["comdex"])
+	check(db, "desmos", configuration["desmos"])
+	check(db, "quicksilver", configuration["quicksilver"])
+	check(db, "omniflix", configuration["omniflix"])
+	check(db, "mars", configuration["mars"])
+	check(db, "celestia", configuration["celestia"])
+	check(db, "archway", configuration["archway"])
+	check(db, "crescent", configuration["crescent"])
 
-	var v VResponse
-	err = json.Unmarshal(body, &v)
+}
+
+func check(db *sql.DB, entity string, config Configuration) {
+	err := createTable(db, "validator."+entity)
 	if err != nil {
-		fmt.Println("Error while unmarshalling the data ", err.Error())
+		fmt.Println("Error creating table for entity:", err)
 		return
-	}
-	tokensBigInt := new(big.Int)
-	tokensBigInt, success := tokensBigInt.SetString(v.Validators.Tokens, 10)
-	if !success {
-		fmt.Println("Error converting string to *big.Int")
-		return
-	}
-	fmt.Println("The value of the validator token from the endpoint is", v.Validators.Tokens)
-	err = db.QueryRow("SELECT token FROM validator.Cosmos ORDER BY id DESC LIMIT 1").Scan(&existing)
-	if err != nil && err != sql.ErrNoRows {
-		fmt.Println("Error getting data from the database", err.Error())
-	}
-	if existing == "" {
-		existing = "0"
-	}
-	existingBigInt := new(big.Int)
-	existingBigInt, exit := existingBigInt.SetString(existing, 10)
-	if !exit {
-		fmt.Println("Error converting data from database to *big.Int")
-		return
-	}
-	if existingBigInt == nil || existingBigInt.Cmp(tokensBigInt) != 0 {
-		_, err := db.Exec("INSERT INTO validator.Cosmos (token) VALUES (?)", v.Validators.Tokens)
+	} else {
+		// fmt.Println("RPC:", configuration["cosmos"].Rpc)
+		// fmt.Println("Cosmos Address:", configuration["cosmos"].Cosmos_address)
+		// Fetch token value from the endpoint
+		// url := "https://api-cosmoshub-ia.cosmosia.notional.ventures/cosmos/staking/v1beta1/validators/cosmosvaloper1ddle9tczl87gsvmeva3c48nenyng4n56nghmjk"
+		url := fmt.Sprintf("%s/cosmos/staking/v1beta1/validators/%s", config.Rpc, config.Cosmos_address)
+		// fmt.Println("UUUUUUUUUUUUUUUUUUUUUUUUUUU", url)
+		resp, err := http.Get(url)
 		if err != nil {
-			fmt.Println("Error inserting new value into the database:", err.Error())
+			fmt.Println("Error fetching the URL:", err.Error())
+			send("Unable to reach the endpoint for  " + entity)
 			return
 		}
-		send("The voting power has changed to " + v.Validators.Tokens)
+		defer resp.Body.Close()
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			fmt.Println("Error reading the unbounded body", err.Error())
+			return
+		}
+
+		var v VResponse
+		err = json.Unmarshal(body, &v)
+		if err != nil {
+			fmt.Println("Error while unmarshalling the data ", err.Error())
+			return
+		}
+		tokensBigInt := new(big.Int)
+		tokensBigInt, success := tokensBigInt.SetString(v.Validators.Tokens, 10)
+		if !success {
+			fmt.Println("Error converting string to *big.Int")
+			return
+		}
+		a := fmt.Sprintf("The value of the validator token from the %s endpoint is %d", entity, v.Validators.Tokens)
+		fmt.Println(a)
+		// fmt.Sprintf("The value of the validator token from the %s  endpoint is", entity)
+		var temptoken string
+		query := fmt.Sprintf("SELECT token FROM validator.%s ORDER BY id DESC LIMIT 1", entity)
+		err = db.QueryRow(query).Scan(&temptoken)
+
+		// err = db.QueryRow("SELECT token FROM validator.Cosmos ORDER BY id DESC LIMIT 1").Scan(&temptoken)
+		if err != nil && err != sql.ErrNoRows {
+			fmt.Println("Error getting data from the database", err.Error())
+		}
+		existing[entity] = temptoken
+		if existing[entity] == "" {
+			existing[entity] = "0"
+		}
+		existingBigInt := new(big.Int)
+		existingBigInt, exit := existingBigInt.SetString(existing[entity], 10)
+		if !exit {
+			fmt.Println("Error converting data from database to *big.Int")
+			return
+		}
+		if existingBigInt == nil || existingBigInt.Cmp(tokensBigInt) != 0 {
+			query := fmt.Sprintf("INSERT INTO validator.%s (token) VALUES (?)", entity)
+			_, err := db.Exec(query, v.Validators.Tokens)
+			// _, err := db.Exec("INSERT INTO validator.Cosmos (token) VALUES (?)", v.Validators.Tokens)
+			if err != nil {
+				fmt.Println("Error inserting new value into the database:", err.Error())
+				return
+			}
+			send("The voting power for " + entity + " has changed to " + v.Validators.Tokens)
+
+		}
 
 	}
-
 }
 func send(message string) {
 	botToken := "6780687251:AAFoZtSIjXgcmn3tXd7HRbW86sn0rgpLmTk"
@@ -139,4 +185,10 @@ func send(message string) {
 		fmt.Println(err.Error())
 	}
 
+}
+
+func createTable(db *sql.DB, entity string) error {
+	query := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (id INT AUTO_INCREMENT PRIMARY KEY, token VARCHAR(255))", entity)
+	_, err := db.Exec(query)
+	return err
 }
