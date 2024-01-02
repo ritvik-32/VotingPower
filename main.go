@@ -59,7 +59,7 @@ func run() {
 		fmt.Printf("Unable to decode into struct, %v", err)
 	}
 
-	db, err := sql.Open("mysql", "root:vitwit@tcp(localhost:3306)/validator")
+	db, err := sql.Open("mysql", "root:test@tcp(localhost:3306)/validator")
 	if err != nil {
 		fmt.Println("ERR")
 		panic(err.Error())
@@ -91,8 +91,8 @@ func run() {
 	check(db, "quicksilver", configuration["quicksilver"])
 	check(db, "omniflix", configuration["omniflix"])
 	check(db, "mars", configuration["mars"])
-	check(db, "celestia", configuration["celestia"])
-	check(db, "archway", configuration["archway"])
+	// check(db, "celestia", configuration["celestia"])
+	// check(db, "archway", configuration["archway"])
 	check(db, "crescent", configuration["crescent"])
 
 }

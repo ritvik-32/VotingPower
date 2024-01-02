@@ -96,15 +96,15 @@ mars:
   chain_id: "mars-1"
   cosmos_address: "marsvaloper1y4s29z2d845c660dxqvac09hrn6wszsy4hweue"
 
-celestia:
-  rpc: "https://api-celestia-01.stakeflow.io"
-  chain_id: "celestia"
-  cosmos_address: "celestiavaloper189ecvq5avj0wehrcfnagpd5sd8pup9aqmdglmr"
+# celestia:
+#   rpc: "https://api-celestia-01.stakeflow.io"
+#   chain_id: "celestia"
+#   cosmos_address: "celestiavaloper189ecvq5avj0wehrcfnagpd5sd8pup9aqmdglmr"
 
-archway:
-  rpc: "https://api-archway.cosmos-spaces.cloud"
-  chain_id: "archway-1"
-  cosmos_address: "archwayvaloper1dc7xue4y86ehhjtyf7hpfna73pn0p52lhp2hcm"  
+# archway:
+#   rpc: "https://api-archway.cosmos-spaces.cloud"
+#   chain_id: "archway-1"
+#   cosmos_address: "archwayvaloper1dc7xue4y86ehhjtyf7hpfna73pn0p52lhp2hcm"  
 
 crescent:
   rpc: "https://crescent-api.polkachu.com"
