@@ -24,6 +24,7 @@ type Configuration struct {
 
 type Validator struct {
 	Tokens string `json:"tokens"`
+	Status string `json:"status"`
 }
 type VResponse struct {
 	Validators Validator `json:"validator"`
@@ -44,8 +45,6 @@ func main() {
 
 var existing = make(map[string]string)
 
-// var existing string
-
 func run() {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
@@ -59,7 +58,6 @@ func run() {
 	if err != nil {
 		fmt.Printf("Unable to decode into struct, %v", err)
 	}
-	// ////////////////////////////////////////////////////////////////////////////////////////////
 
 	db, err := sql.Open("mysql", "root:vitwit@tcp(localhost:3306)/validator")
 	if err != nil {
@@ -105,12 +103,8 @@ func check(db *sql.DB, entity string, config Configuration) {
 		fmt.Println("Error creating table for entity:", err)
 		return
 	} else {
-		// fmt.Println("RPC:", configuration["cosmos"].Rpc)
-		// fmt.Println("Cosmos Address:", configuration["cosmos"].Cosmos_address)
-		// Fetch token value from the endpoint
-		// url := "https://api-cosmoshub-ia.cosmosia.notional.ventures/cosmos/staking/v1beta1/validators/cosmosvaloper1ddle9tczl87gsvmeva3c48nenyng4n56nghmjk"
+
 		url := fmt.Sprintf("%s/cosmos/staking/v1beta1/validators/%s", config.Rpc, config.Cosmos_address)
-		// fmt.Println("UUUUUUUUUUUUUUUUUUUUUUUUUUU", url)
 		resp, err := http.Get(url)
 		if err != nil {
 			fmt.Println("Error fetching the URL:", err.Error())
@@ -131,60 +125,69 @@ func check(db *sql.DB, entity string, config Configuration) {
 			fmt.Println("Error while unmarshalling the data ", err.Error())
 			return
 		}
-		tokensBigInt := new(big.Int)
-		tokensBigInt, success := tokensBigInt.SetString(v.Validators.Tokens, 10)
+		f_number := v.Validators.Tokens
+		f_number = strings.TrimSpace(f_number)
+		float, success := new(big.Float).SetString(f_number)
 		if !success {
-			fmt.Println("Error converting string to *big.Int")
+			fmt.Println("Error converting string to big.Float")
 			return
 		}
-		// a := fmt.Sprintf("The value of the validator token from the %s endpoint is %d", entity, v.Validators.Tokens)
-		// fmt.Println(a)
-		// fmt.Sprintf("The value of the validator token from the %s  endpoint is", entity)
-		var temptoken string
-		query := fmt.Sprintf("SELECT token FROM validator.%s ORDER BY id DESC LIMIT 1", entity)
-		err = db.QueryRow(query).Scan(&temptoken)
+		divisor := new(big.Float).SetInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(6), nil))
+		result := new(big.Float).Quo(float, divisor)
 
-		// err = db.QueryRow("SELECT token FROM validator.Cosmos ORDER BY id DESC LIMIT 1").Scan(&temptoken)
-		if err != nil && err != sql.ErrNoRows {
-			fmt.Println("Error getting data from the database", err.Error())
+		var temptoken string
+		var existingStatus string
+		s := v.Validators.Status
+		if s == "BOND_STATUS_UNBONDED" {
+			send(entity + "validator is in state: BOND_STATUS_UNBONDED")
 		}
+		query := fmt.Sprintf("SELECT token,status FROM validator.%s ORDER BY id DESC LIMIT 1", entity)
+		err = db.QueryRow(query).Scan(&temptoken, &existingStatus)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				insertQuery := fmt.Sprintf("INSERT INTO validator.%s (token,status) VALUES (?,?)", entity)
+				_, err := db.Exec(insertQuery, result.Text('f', 6), s)
+
+				if err != nil {
+					fmt.Println("Error inserting new value into the database:", err.Error())
+					return
+				}
+
+				return
+			} else {
+				fmt.Println("Error:", err.Error())
+				return
+			}
+		}
+
 		existing[entity] = temptoken
-		if existing[entity] == "" {
-			existing[entity] = "0"
-		}
-		existingBigInt := new(big.Int)
-		existingBigInt, exit := existingBigInt.SetString(existing[entity], 10)
+		existingBigFloat := new(big.Float)
+		existingBigFloat, exit := existingBigFloat.SetString(existing[entity])
+
 		if !exit {
-			fmt.Println("Error converting data from database to *big.Int")
+			fmt.Println("Error converting data from database to *big.Float")
 			return
 		}
-		if existingBigInt == nil || existingBigInt.Cmp(tokensBigInt) != 0 {
-			query := fmt.Sprintf("INSERT INTO validator.%s (token) VALUES (?)", entity)
-			_, err := db.Exec(query, v.Validators.Tokens)
-			// _, err := db.Exec("INSERT INTO validator.Cosmos (token) VALUES (?)", v.Validators.Tokens)
+
+		if existingBigFloat.Cmp(result) != 0 || existingStatus != s {
+			if existingBigFloat.Cmp(result) < 0 {
+				send(entity + "voting power has increased from" + existingBigFloat.String() + "to" + result.String())
+			}
+			if existingBigFloat.Cmp(result) > 0 {
+				send(entity + "voting power has decreased from" + existingBigFloat.String() + "to" + result.String())
+			}
+			updateQuery := fmt.Sprintf("UPDATE validator.%s SET token = ?,status = ? ORDER BY id DESC LIMIT 1", entity)
+			_, err := db.Exec(updateQuery, result.Text('f', 6), s)
 			if err != nil {
-				fmt.Println("Error inserting new value into the database:", err.Error())
+				fmt.Println("Error updating database:", err)
 				return
 			}
-			number := v.Validators.Tokens
-			number = strings.TrimSpace(number)
-			float, success := new(big.Float).SetString(number)
-			if !success {
-				fmt.Println("Error converting string to big.Float")
-				return
-			}
-			divisor := new(big.Float).SetInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(6), nil))
-			result := new(big.Float).Quo(float, divisor)
-			// fmt.Printf("Result: %.6f\n", result)
-			// fmt.Println(result.String())
-			formattedResult := result.Text('f', 6)
-			fmt.Printf("Result: %s\n", formattedResult)
-			send("The voting power for " + entity + " has changed to " + result.String())
 
 		}
 
 	}
 }
+
 func send(message string) {
 	botToken := "6780687251:AAFoZtSIjXgcmn3tXd7HRbW86sn0rgpLmTk"
 	chatID := int64(-1002016620029)
@@ -201,7 +204,7 @@ func send(message string) {
 }
 
 func createTable(db *sql.DB, entity string) error {
-	query := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (id INT AUTO_INCREMENT PRIMARY KEY, token VARCHAR(255))", entity)
+	query := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (id INT AUTO_INCREMENT PRIMARY KEY, token VARCHAR(255),status VARCHAR(30))", entity)
 	_, err := db.Exec(query)
 	return err
 }
