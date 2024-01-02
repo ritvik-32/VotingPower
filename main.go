@@ -139,7 +139,7 @@ func check(db *sql.DB, entity string, config Configuration) {
 		var existingStatus string
 		s := v.Validators.Status
 		if s == "BOND_STATUS_UNBONDED" {
-			send(entity + "validator is in state: BOND_STATUS_UNBONDED")
+			send(entity + " validator is in state : BOND_STATUS_UNBONDED")
 		}
 		query := fmt.Sprintf("SELECT token,status FROM validator.%s ORDER BY id DESC LIMIT 1", entity)
 		err = db.QueryRow(query).Scan(&temptoken, &existingStatus)
@@ -171,10 +171,10 @@ func check(db *sql.DB, entity string, config Configuration) {
 
 		if existingBigFloat.Cmp(result) != 0 || existingStatus != s {
 			if existingBigFloat.Cmp(result) < 0 {
-				send(entity + "voting power has increased from" + existingBigFloat.String() + "to" + result.String())
+				send(entity + " voting power has increased from " + existingBigFloat.String() + " to " + result.String())
 			}
 			if existingBigFloat.Cmp(result) > 0 {
-				send(entity + "voting power has decreased from" + existingBigFloat.String() + "to" + result.String())
+				send(entity + " voting power has decreased from " + existingBigFloat.String() + " to " + result.String())
 			}
 			updateQuery := fmt.Sprintf("UPDATE validator.%s SET token = ?,status = ? ORDER BY id DESC LIMIT 1", entity)
 			_, err := db.Exec(updateQuery, result.Text('f', 6), s)
