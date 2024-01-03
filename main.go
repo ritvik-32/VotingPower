@@ -171,10 +171,17 @@ func check(db *sql.DB, entity string, config Configuration) {
 
 		if existingBigFloat.Cmp(result) != 0 || existingStatus != s {
 			if existingBigFloat.Cmp(result) < 0 {
-				send(entity + " voting power has increased from " + existingBigFloat.String() + " to " + result.String())
+				temp := new(big.Float).Sub(result, existingBigFloat)
+				if temp.Cmp(big.NewFloat(100)) > 0 {
+					send(entity + " voting power has increased from " + existingBigFloat.String() + " to " + result.String())
+				}
 			}
 			if existingBigFloat.Cmp(result) > 0 {
-				send(entity + " voting power has decreased from " + existingBigFloat.String() + " to " + result.String())
+				temp := new(big.Float).Sub(existingBigFloat, result)
+
+				if temp.Cmp(big.NewFloat(100)) > 0 {
+					send(entity + " voting power has decreased from " + existingBigFloat.String() + " to " + result.String())
+				}
 			}
 			updateQuery := fmt.Sprintf("UPDATE validator.%s SET token = ?,status = ? ORDER BY id DESC LIMIT 1", entity)
 			_, err := db.Exec(updateQuery, result.Text('f', 6), s)
